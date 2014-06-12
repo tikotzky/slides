@@ -1,0 +1,414 @@
+<!doctype html>
+<html lang="en">
+
+    <head>
+        <meta charset="utf-8">
+
+        <title>Javascript Control Flow</title>
+
+        <meta name="description" content="A short talk about Javascript Control Flow">
+        <meta name="author" content="Mordy Tikotzky">
+
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+        <link rel="stylesheet" href="css/reveal.min.css">
+        <link rel="stylesheet" href="css/theme/default.css" id="theme">
+
+        <!-- For syntax highlighting -->
+        <link rel="stylesheet" href="lib/css/zenburn.css">
+
+        <!-- If the query includes 'print-pdf', include the PDF print sheet -->
+        <script>
+            if( window.location.search.match( /print-pdf/gi ) ) {
+                var link = document.createElement( 'link' );
+                link.rel = 'stylesheet';
+                link.type = 'text/css';
+                link.href = 'css/print/pdf.css';
+                document.getElementsByTagName( 'head' )[0].appendChild( link );
+            }
+        </script>
+
+        <style type="text/css">
+            .hide-visible.visible {
+                display: none;
+            }
+            .delay {
+                transition-delay:1s !important;
+            }
+            .no-anim {
+                transition: all 0s ease !important;
+            }
+            .big-font {
+                font-size: 200% !important;
+                line-height: 100% !important;
+            }
+            .big-code {
+                max-height: 600px !important;
+            }
+        </style>
+
+        <!--[if lt IE 9]>
+        <script src="lib/js/html5shiv.js"></script>
+        <![endif]-->
+    </head>
+
+    <body>
+
+        <div class="reveal">
+            <div class="slides">
+                <section>
+                    <h1>Javascript</h1>
+                    <h1>Control Flow</h1>
+                    <div><br></div>
+                    <div><br></div>
+                    <div><br></div>
+                    <div><br></div>
+                    <div><br></div>
+                    <div><br></div>
+                    <div>Mordechai Tikotzky / <a target="_blank" href="https://twitter.com/tikotzky">@tikotzky</a></div>
+                    <div>
+                        <small>Developer @ QualityBath.com</small>
+                    </div>
+                    <small>6/10/14</small>
+                </section>
+                <section>
+                    <h2>What Is <a>JavaScript</a>?</h2>
+                    <div class="big-font" style="position:relative">
+                            <ol>
+                                <li class="fragment" data-fragment-index="0">Asynchronous</li>
+                                <li class="fragment" data-fragment-index="1">Everywhere</li>
+                                <li class="fragment" data-fragment-index="2">Awesome</li>
+                                <li class="fragment" data-fragment-index="3">
+                                    <b>Not PHP</b>
+                                    <span class="delay fragment"  data-fragment-index="3">😜</span>
+                                </li>
+                            </ol>
+                        
+                        <div class="fragment absolute-element" data-fragment-index="5" style="position: absolute; width: 120px; height: 109.47390691114245px; z-index: 5; left: 710px; top: 15px; max-height: none; max-width: none; font-size: 200%;">
+                            <b>☜</b>
+                        </div>
+                        <div class="fragment absolute-element" data-fragment-index="5" style="position: absolute; width: 120px; height: 112px; z-index: 6; left: 30px; top: 15px; font-size: 200%;">
+                            <b>☞</b>
+                        </div>
+                    </div>
+                </section>
+                <section>
+                    <h2>Why is&nbsp;<a target="_blank" href="http://en.wiktionary.org/wiki/asynchronicity">asynchronicity</a> <span style="color:#17ff2e">good</span>?</h2>
+                    <div class="fragment" data-fragment-index="0">Lets try scraping multiple sites</div>
+                    <div class="no-anim hide-visible fragment fade-out" data-fragment-index="2">
+                        <img src="img/syncexample.png" style="width: 923.707898698514px; height: 388.70443669775864px; max-height: none; max-width: none;" class="fragment" data-fragment-index="1">
+                        <div class="fragment" data-fragment-index="1">
+                            <b>synchronous</b> code execution...
+                        </div>
+                    </div>
+                    <div class="no-anim fragment" data-fragment-index="2">
+                        <img src="img/asyncexample.png" style="width: 923.707898698514px; height: 388.70443669775864px; max-height: none; max-width: none;">
+                        <div>
+                            <b>asynchronous</b> code execution...
+                        </div>
+                    </div>
+                </section>
+                <section>
+                    <h2>Why is&nbsp;<a target="_blank" href="http://en.wiktionary.org/wiki/asynchronicity">asynchronicity</a> <span style="color:#ff2c2d;">bad</span>?</h2>
+                    <br>
+                    <br>
+                    <br>
+                    <ol>
+                        <li class="fragment">harder to follow code</li>
+                        <li class="fragment">call stack gets reset</li>
+                        <li class="fragment">?????????</li>
+                    </ol>
+                </section>
+                <section>
+                    <h2>Let's make async easy</h2>
+                    <br><br>
+                    <h1 class="fragment" data-fragment-index="0"><a target="_blank" href="https://github.com/caolan/async">Async.js</a></h1>
+                    <div class="fragment" data-fragment-index="1">
+                        async.waterfall()
+                    </div>
+                    <div class="fragment" data-fragment-index="1">
+                        async.parallel()
+                    </div>
+                </section>
+                <section>
+                    <section>
+                        <h2 style="text-transform: none;">before async.waterfall()</h2>
+                        <pre><code data-trim contenteditable class="javascript">
+function getFromDB(callback){
+    //read from DB and invoke the callback when done
+    callback(null, 'google.com', 21);
+}
+
+function scrapeUrl(arg1, arg2, callback){
+    //arg1 now equals 'google.com' and arg2 now equals '21'
+    callback(null, 'three');
+}
+
+function saveResults(result, callback){
+    //result now equals 'three'
+    callback(null, 'done');
+}
+
+
+
+
+
+
+
+
+
+getFromDB(function(err, url, id){
+    if (err) return console.log(err);
+    scrapeUrl(url, id, function(err, result){
+        if (err) return console.log(err);
+        saveResults(result, function(err, result){
+            if (err) return console.log(err);
+            console.log(result);
+        });
+    });
+});
+                        </code></pre>
+                        <a target="_blank" href="http://jsbin.com/litopa/2/edit?js,console">JSbin</a>
+                    </section>
+                    <section>
+                        <h2 style="text-transform: none;">after async.waterfall()</h2>
+                        <pre><code data-trim contenteditable class="javascript">
+function getFromDB(callback){
+    //read from DB and invoke the callback when done
+    callback(null, 'google.com', 21);
+}
+
+function scrapeUrl(arg1, arg2, callback){
+    //arg1 now equals 'google.com' and arg2 now equals '21'
+    callback(null, 'three');
+}
+
+function saveResults(result, callback){
+    //result now equals 'three'
+    callback(null, 'done');
+}
+
+
+
+
+
+
+
+
+
+async.waterfall([
+    getFromDB,
+    scrapeUrl,
+    saveResults
+], 
+function (err, result) {
+   if (err) return console.log(err);
+   console.log(result);
+});
+                        </code></pre>
+                        <a target="_blank" href="http://jsbin.com/qehej/2/edit?js,console">JSbin</a>
+                    </section>
+                </section>
+                <section>
+                    <section>
+                        <h2 style="text-transform: none;">before async.parallel()</h2>
+                        <pre><code data-trim contenteditable class="javascript">
+function taskOne(callback){
+    setTimeout(function(){
+        callback(null, 'one');
+    }, 200);
+}
+
+function taskTwo(callback){
+    setTimeout(function(){
+        callback(null, 'two');
+    }, 100);
+}
+
+function done(err, results){
+    if (err) console.log(err);
+    console.log(results);
+}
+
+
+var counter = 0;
+var results = [];
+taskOne(function(err, result){
+    if (err) return done(err);
+    results[0] = result;
+    if (++counter == 2) {
+        done(null, results);
+    }
+});
+
+taskTwo(function(err, result){
+    if (err) return done(err);
+    results[1] = result;
+    if (++counter == 2) {
+        done(null, results);
+    }
+});
+
+                        </code></pre>
+                        <a target="_blank" href="http://jsbin.com/juzikano/1/edit?js,console">JSbin</a>
+                    </section>
+                    <section>
+                        <h2 style="text-transform: none;">after async.parallel()</h2>
+                        <pre><code data-trim contenteditable class="javascript">
+function taskOne(callback){
+    setTimeout(function(){
+        callback(null, 'one');
+    }, 200);
+}
+
+function taskTwo(callback){
+    setTimeout(function(){
+        callback(null, 'two');
+    }, 100);
+}
+
+function done(err, results){
+    if (err) console.log(err);
+    console.log(results);
+}
+
+
+async.parallel([
+    taskOne,
+    taskTwo
+], done);
+                        </code></pre>
+                        <a target="_blank" href="http://jsbin.com/zovacogo/1/edit?js,console">JSbin</a>
+                    </section>
+                </section>
+                <section>
+                    <section>
+                        <h2 style="text-transform: none;">async.waterfall() + async.parallel()</h2>
+                        <h3 class="fragment" data-fragment-index="0" style="text-transform: none;">scraping multiple sites</h3>
+                        <pre class="fragment" data-fragment-index="0"><code data-trim contenteditable class="javascript">
+function getFromDB(callback){
+    callback(null, ['google.com', 'yahoo.com', 'apple.com']);
+}
+
+function scrapeUrl(arg1, callback){
+    callback(null, arg1+'-response');
+}
+
+function saveResults(results, callback){
+    callback(null, results);
+}
+
+function scrapeUrls(urls, callback){
+    //urls now equals ['google.com', 'yahoo.com', 'apple.com']
+    var scrapes = urls.map(function(url){
+        return function(callback) {
+          scrapeUrl(url, callback);
+        };
+    });
+    async.parallel(scrapes, callback);
+}
+
+async.waterfall([
+    getFromDB,
+    scrapeUrls,
+    saveResults
+], 
+function (err, result) {
+   if (err) return console.log(err);
+   console.log(result);
+});
+                        </code></pre>
+                        <a class="fragment" data-fragment-index="0" target="_blank" href="http://jsbin.com/qehej/3/edit?js,console">JSbin</a>
+                    </section>
+                    <section>
+                        <h2 style="text-transform: none;">async.waterfall() + async.map()</h2>
+                        <h3 style="text-transform: none;">scraping multiple sites</h3>
+                        <pre><code data-trim contenteditable class="javascript">
+function getFromDB(callback){
+    callback(null, ['google.com', 'yahoo.com', 'apple.com']);
+}
+
+function scrapeUrl(arg1, callback){
+    callback(null, arg1+'-response');
+}
+
+function saveResults(results, callback){
+    callback(null, results);
+}
+
+function scrapeUrls(urls, callback){
+    async.map(urls, scrapeUrl, callback);
+}
+
+async.waterfall([
+    getFromDB,
+    scrapeUrls,
+    saveResults
+], 
+function (err, result) {
+   if (err) return console.log(err);
+   console.log(result);
+});
+                        </code></pre>
+                        <a target="_blank" href="http://jsbin.com/qehej/4/edit?js,console">JSbin</a>
+                    </section>
+                </section>
+                <section>
+                    <h2>Promises?</h2>
+                    <br>
+                    <br>
+                    <br>
+                    <div class="fragment" data-fragment-index="0">
+                        Lets save that for another time 😀
+                    </div>
+                </section>
+                <section>
+                    <br>
+                    <br>
+                    <br>
+                    <br>
+                    <h1>THANK YOU</h1>
+                </section>
+
+            </div>
+
+        </div>
+
+        <script src="lib/js/head.min.js"></script>
+        <script src="js/reveal.min.js"></script>
+
+        <script>
+
+            // Full list of configuration options available here:
+            // https://github.com/hakimel/reveal.js#configuration
+            Reveal.initialize({
+                controls: true,
+                progress: true,
+                history: true,
+                center: false,
+
+                theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+                transition: Reveal.getQueryHash().transition || 'linear', // default/cube/page/concave/zoom/linear/fade/none
+
+                // Parallax scrolling
+                // parallaxBackgroundImage: 'https://s3.amazonaws.com/hakim-static/reveal-js/reveal-parallax-1.jpg',
+                // parallaxBackgroundSize: '2100px 900px',
+
+                // Optional libraries used to extend on reveal.js
+                dependencies: [
+                    { src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+                    { src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+                    { src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+                    { src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+                    { src: 'plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+                    { src: 'plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }
+                ]
+            });
+
+        </script>
+
+    </body>
+</html>
