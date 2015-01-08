@@ -1,0 +1,550 @@
+<!doctype html>
+<html lang="en">
+
+    <head>
+        <meta charset="utf-8">
+
+        <title>Javascript Promises</title>
+
+        <meta name="description" content="A talk about Javascript Promises">
+        <meta name="author" content="Mordy Tikotzky">
+
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+        <link rel="stylesheet" href="css/reveal.min.css">
+        <link rel="stylesheet" href="css/theme/default.css" id="theme">
+
+        <!-- For syntax highlighting -->
+        <link rel="stylesheet" href="lib/css/zenburn.css">
+
+        <!-- If the query includes 'print-pdf', include the PDF print sheet -->
+        <script>
+            if( window.location.search.match( /print-pdf/gi ) ) {
+                var link = document.createElement( 'link' );
+                link.rel = 'stylesheet';
+                link.type = 'text/css';
+                link.href = 'css/print/pdf.css';
+                document.getElementsByTagName( 'head' )[0].appendChild( link );
+            }
+        </script>
+
+        <style type="text/css">
+            .hide-visible.visible {
+                display: none;
+            }
+            .delay {
+                transition-delay:1s !important;
+            }
+            .no-anim {
+                transition: all 0s ease !important;
+            }
+            .big-font {
+                font-size: 200% !important;
+                line-height: 100% !important;
+            }
+            .big-code {
+                max-height: 600px !important;
+            }
+        </style>
+
+        <!--[if lt IE 9]>
+        <script src="lib/js/html5shiv.js"></script>
+        <![endif]-->
+        <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>        
+        <script>
+            $(function(){
+                $('.jsrunner').on('click', function(){
+                    runId = $(this).data('run');
+                    eval($('#'+runId).text());
+                })
+            })
+        </script>
+    </head>
+
+    <body>
+
+        <div class="reveal">
+            <div class="slides">
+                <section>
+                    <h1>Javascript</h1>
+                    <h1>Promises 101</h1>
+                    <div><br></div>
+                    <div><br></div>
+                    <div><br></div>
+                    <div><br></div>
+                    <div><br></div>
+                    <div><br></div>
+                    <div>Mordechai Tikotzky / <a target="_blank" href="https://twitter.com/tikotzky">@tikotzky</a></div>
+                    <div>
+                        <small>Developer @ QualityBath.com</small>
+                    </div>
+                    <small>01/05/15</small>
+                </section>
+                <section>
+                    <h2>The Plan</h2>
+                    
+                            <ul>
+                                <li class="fragment" data-fragment-index="2">What is a promise</li>
+                                <li class="fragment" data-fragment-index="4">The benefits of promises</li>
+                                <li class="fragment" data-fragment-index="6">How to use promises</li>
+                                <li class="fragment" data-fragment-index="8">Promise pitfalls</li>
+                            </ul>
+                    
+                </section>
+                <section>
+                    <div>
+                        If you have questions <i>please</i> interrupt
+                    </div>
+                </section>
+                <section>
+                    <section>
+                        <h2>What is a Promise?</h2>
+                        <br>
+                        <br>
+                        <div class="fragment" data-fragment-index="2">first lets review something else...</div>
+                        <br>
+                        <div class="fragment big-font" data-fragment-index="4">
+                            <span class="highlight-green fragment" data-fragment-index="4">Callbacks</span>
+                        </div>
+                    </section>
+                    <section>
+                        <h2>What is a callback?</h2>
+                        <br>
+                        <blockquote class="fragment">a callback is a function that is passed as an argument to another function.</blockquote>
+                        <div class="fragment">
+                            Two main usages
+                        </div>
+                        <ul class="fragment">
+                            <li>setting up event handlers</li>
+                            <li>getting notified when a task is done</li>
+                        </ul>
+                    </section>
+                </section>
+                <section>
+                    <section>
+                        <h2>Callback Examples</h2>
+                        <div class="fragment fade-out"  data-fragment-index="10">
+                        <pre><code data-trim contenteditable class="javascript">
+//Event handler
+//Ok if called more that once
+jQuery('#myElement').on('click', function(){
+    alert('#myElement was clicked');
+});
+                        </code></pre>
+                        </div>
+                        <pre class="fragment" data-fragment-index="2"><code data-trim contenteditable class="javascript" id="runOnlyOnce">
+//Notification that a task is done
+//Bad if called more than once
+jQuery.getJSON('https://api.github.com/users/tikotzky', function(data){
+    alert(data.login + ' has ' + data.public_repos + ' public repos');
+});
+                        </code></pre>
+                        <button id="myElement">#myElement</button>
+                        <button class="jsrunner" data-run="runOnlyOnce">getJson</button>
+                        <script type="text/javascript">
+                        jQuery('#myElement').on('click', function(){
+                            alert('#myElement was clicked');
+                        });
+                        </script>
+                    </section>
+                    <section>
+                        <h2 style="color:#ff2c2d;">Problems with Callbacks</h2>
+                        <ul>
+                            <li class="fragment">callbacks can called twice by mistake</li>
+                            <li class="fragment">need to be created at the time of the original function call</li>
+                            <li class="fragment">Deep nesting of callback functions</li>
+                            <li class="fragment">error handling has to be done at each level</li>
+                            <li class="fragment">tightly coupled</li>
+                        </ul>
+                    </section>
+                    <section>
+                        <h2>callbacks can called twice by mistake</h2>
+                        <pre><code data-trim contenteditable class="javascript">
+function myfunction(cb){
+    //do some work
+    if (err){
+        cb(err); //missing return here...
+    }
+    
+
+    cb(success)
+}
+                        </code></pre>
+                    </section>
+                    <section>
+                        <h2>callbacks need to be created at the time of the original function call</h2>
+                        <pre><code data-trim contenteditable class="javascript">
+function myfunction(cb){...}
+
+myfunction(function(){
+    //this callback function needs to be defined
+    //at the time that I call myfunction
+})
+                        </code></pre>
+                    </section>
+                    <section>
+                        <h2>Deep nesting of callback functions</h2>
+                        <ul>
+                            <li>Load a user</li>
+                            <li>load list of their repos</li>
+                            <li>get the first repos description</li>
+                        </ul>
+                        <pre><code data-trim contenteditable class="javascript" id="nestedCallbacks">
+jQuery.getJSON('https://api.github.com/users/tikotzky', function(data, status){
+    jQuery.getJSON(data.repos_url, function(data, status){
+        jQuery.getJSON(data[0].url, function(data, status){
+            alert(data.name + ' : ' + data.description)
+        })
+    });
+})
+                        </code></pre>
+                        <button class="jsrunner" data-run="nestedCallbacks">RUN</button>
+                    </section>
+                    <section>
+                        <h2>error handling has to be done at each level</h2>
+                        <pre><code data-trim contenteditable class="javascript">
+$('#loadData').on('click', function(){
+    jQuery.getJSON('https://api.github.com/users/tikotzky', function(data, status){
+        if (status !== 'success') {
+            console.log('THERE WAS AN ERROR');
+            return;
+        }
+        jQuery.getJSON(data.repos_url, function(data, status){
+            if (status !== 'success') {
+                console.log('THERE WAS AN ERROR');
+                return;
+            }
+            jQuery.getJSON(data[0].url, function(data, status){
+                if (status !== 'success') {
+                    console.log('THERE WAS AN ERROR');
+                    return;
+                }
+                alert(data.description)
+            })
+        });
+    })
+})
+                        </code></pre>
+                    </section>
+                </section>
+                <section>
+                    <section>
+                        <h2>Back to Promises</h2>
+                    </section>
+                    <section>
+                        <h2>What is a Promise?</h2>
+                        <blockquote class="fragment" data-fragment-index="2">
+                            "A promise represents the eventual result of an asynchronous operation"
+                        </blockquote>
+                        <a class="fragment" data-fragment-index="2" href="https://promisesaplus.com/">https://promisesaplus.com/</a>
+                        <blockquote class="fragment" data-fragment-index="4">
+                            "... asynchronous method returns a promise of having a value at some point in the future"
+                        </blockquote>
+                        <a class="fragment" data-fragment-index="4" href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise">MDN</a>
+                        <br><br>
+                        <div  class="fragment" data-fragment-index="6" >
+                            <b>Part of ES6</b><br>
+                            ES6 is targeted for ratification in June 2015, but most browsers support promises natively today.
+                        </div>
+                    </section>
+                    <section>
+                        <h2>What does a promise look like?</h2>
+                        <pre><code data-trim contenteditable class="javascript" id="promise1">
+var promise = new Promise(function(resolve, reject){
+    //do some work
+    setTimeout(function(){
+        resolve('My Value');
+    }, 2000)
+});
+
+
+
+//promise.then(success, error);
+//.then will always return a new promise
+//which allows you to chain
+promise.then(function(data){
+    //data will equal 'My Value'
+    alert('SUCCESS: ' + data);
+}, function(error){
+    //if promise was rejected or there was an error inside our promise
+    //we would end up here
+})
+                        </code></pre>
+                        <button class="jsrunner" data-run="promise1">RUN</button>
+                    </section>
+                    <section>
+                        <h2>Promises</h2>
+                        <ul>
+                            <li class="fragment">
+                                Stateful : either Pending or Settled <br>
+                                <small>If Settled its either Fullfilled or Rejected</small>
+                            </li>
+                            <li class="fragment">guaranteed to only ever be fullfilled or rejected once</li>
+                            <li class="fragment">guaranteed to be fullfilled or rejected with a single value</li>
+                            <li class="fragment">
+                                can be fullfilled with a value or another promise<br>
+                                <small>If its fullfilled with a promise then the outer promise adopts the inner promises state</small>
+                            </li>
+                            <li class="fragment">automatically catch exceptions</li>
+                        </ul>
+                    </section>
+                    <section>
+                        <h2 style="text-transform:none;">.then(success, error)</h2>
+                        <ul>
+                            <li>Will always return a new promise</li>
+                            <li>new promise will resolve with the return value of the handler</li>
+                            <li>new promise will reject if there is an error in your handler</li>
+                        </ul>
+                    </section>
+                    <section>
+                        <h2 style="color:#17ff2e;">Pluses</h2>
+                        <ul>
+                            <li>functions can be decoupled</li>
+                            <li>
+                                errors can be handled at the end of the chain
+                                <small>you can choose to handle exceptions it or let it bubble down the entire chain </small>
+                            </li>
+                            <li>you can add handlers at a later point in time</li>
+                            <li>can define generic wrappers around promises (retry, ...)</li>
+                        </ul>
+                        <br><br>
+                        <h2 style="color:#ff2c2d;" class="fragment" data-fragment-index="4">minuses</h2>
+                        <ul class="fragment" data-fragment-index="4">
+                            <li>if you dont explicitly handle exceptions they will get swallowed</li>
+                        </ul>
+                    </section>
+                </section>
+                <section>
+                    <section>
+                        <h2>guaranteed to only ever be fullfilled or rejected once</h2>
+                        <pre><code data-trim contenteditable class="javascript" id="promise2">
+var promise = new Promise(function(resolve, reject){
+    //do some work
+    resolve('My Value');
+    setTimeout(function(){
+        resolve('RESOLVE AGAIN!!');
+    }, 2000)
+});
+
+
+
+//promise.then(success, error);
+promise.then(function(data){
+    //data will equal 'My Value'
+    alert('SUCCESS: ' + data);
+}, function(error){
+    //if promise was rejected or there was an error inside our promise
+    //we would end up here
+})
+                        </code></pre>
+                        <button class="jsrunner" data-run="promise2">RUN</button>
+                    </section>
+                    <section>
+                        <h2>guaranteed to be fullfilled or rejected with a single value</h2>
+                        <pre><code data-trim contenteditable class="javascript" id="promise3">
+var promise = new Promise(function(resolve, reject){
+    //do some work
+    resolve('My Value', 'Second Value');
+});
+
+
+
+//promise.then(success, error);
+promise.then(function(data, second){
+    //data will equal 'My Value'
+    alert('SUCCESS: ' + data + ' - ' + second);
+}, function(error){
+    //if promise was rejected or there was an error inside our promise
+    //we would end up here
+})
+                        </code></pre>
+                        <button class="jsrunner" data-run="promise3">RUN</button>
+                    </section>
+                    <section>
+                        <h2>Can be fullfilled with a value or a promise</h2>
+                        <pre><code data-trim contenteditable class="javascript" id="promise7">
+var promise = new Promise(function(resolve, reject){
+    //do some work
+    resolve('My Value', 'Second Value');
+});
+
+var promise2 = new Promise(function(resolve, reject){
+    //do some work
+    setTimeout(function(){
+        resolve('promise2 done');
+    }, 2000)
+});
+
+
+
+//promise.then(success, error);
+promise.then(function(data, second){
+    //data will equal 'My Value'
+    alert('SUCCESS: ' + data); 
+    return promise2;
+}).then(function(data){
+    alert('SUCCESS: ' + data);   
+}, function(error){
+    //if promise was rejected or there was an error inside our promise
+    //we would end up here
+})
+                        </code></pre>
+                        <button class="jsrunner" data-run="promise7">RUN</button>
+                    </section>
+                    <section>
+                        <h2>automatically catch exceptions</h2>
+                        <pre><code data-trim contenteditable class="javascript" id="promise4">
+var promise = new Promise(function(resolve, reject){
+    //do some work
+    callUndefinedFunction();
+});
+
+
+
+//promise.then(success, error);
+promise.then(function(data){
+    //data will equal 'My Value'
+    alert('SUCCESS: ' + data);
+}, function(error){
+    alert('Failure: ' + error);
+})
+                        </code></pre>
+                        <button class="jsrunner" data-run="promise4">RUN</button>
+                    </section>
+                    <section>
+                        <h2>errors can be handled at the end of the chain</h2>
+                        <pre><code data-trim contenteditable class="javascript" id="promise5">
+var promise = new Promise(function(resolve, reject){
+    //do some work
+    resolve(['My Value']);
+});
+
+function firstPromiseHandler(data){
+    data.push('another value');
+    return data;
+}
+
+function secondPromiseHandler(data){
+    data.push('a third val');
+    return data;
+}
+
+function successHandler(data){
+    return alert(data);
+}
+
+function errorHandler(error){
+    return alert('FAIL: ' + error);
+}
+
+
+promise
+.then(firstPromiseHandler)
+.then(secondPromiseHandler)
+.then(successHandler, errorHandler)
+                        </code></pre>
+                        <button class="jsrunner" data-run="promise5">RUN</button>
+                    </section>
+                    <section>
+                        <h2>you can add handlers at a later point in time</h2>
+                        <pre><code data-trim contenteditable class="javascript" id="promise6">
+var promise = new Promise(function(resolve, reject){
+    //do some work
+    resolve('My Value');
+});
+
+setTimeout(function(){
+    promise.then(function(data){
+        alert(data);
+    })
+}, 2000)
+                        </code></pre>
+                        <button class="jsrunner" data-run="promise6">RUN</button>
+                    </section>
+                </section>
+                <section>
+                    <h2>ES6</h2>
+                    <ul style="float: left">
+                        <li>arrow functions</li>
+                        <li>classes</li>
+                        <li>enhanced object literals</li>
+                        <li>template strings</li>
+                        <li>destructuring</li>
+                        <li>default + rest + spread</li>
+                        <li>let + const</li>
+                        <li>iterators + for..of</li>
+                        <li>generators</li>
+                        <li>comprehensions</li>
+                    </ul>
+                    <ul style="float: right">
+                        <li>unicode</li>
+                        <li>modules</li>
+                        <li>module loaders</li>
+                        <li>proxies</li>
+                        <li>symbols</li>
+                        <li>subclassable built-ins</li>
+                        <li>promises</li>
+                        <li>binary and octal literals</li>
+                        <li>reflect api</li>
+                        <li>tail calls</li>
+                    </ul>
+                    <div style="clear:both;"><i>and more...</i></div>
+                </section>
+                <section>
+                    <h2>Resources</h2>
+                    <ul>
+                        <li><a href="http://www.mattgreer.org/articles/promises-in-wicked-detail/">Promises In Wicked Detail</a></li>
+                        <li><a href="http://www.html5rocks.com/en/tutorials/es6/promises/">JavaScript Promises : There and back again</a></li>
+                        <li><a href="https://github.com/lukehoban/es6features">ES6 Features</a></li>
+                    </ul>
+                </section>
+                <section>
+                    <br>
+                    <br>
+                    <br>
+                    <br>
+                    <h1>THANK YOU</h1>
+                </section>
+
+            </div>
+
+        </div>
+
+        <script src="lib/js/head.min.js"></script>
+        <script src="js/reveal.min.js"></script>
+
+        <script>
+
+            // Full list of configuration options available here:
+            // https://github.com/hakimel/reveal.js#configuration
+            Reveal.initialize({
+                controls: true,
+                progress: true,
+                history: true,
+                center: true,
+
+                theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+                transition: Reveal.getQueryHash().transition || 'linear', // default/cube/page/concave/zoom/linear/fade/none
+
+                // Parallax scrolling
+                // parallaxBackgroundImage: 'https://s3.amazonaws.com/hakim-static/reveal-js/reveal-parallax-1.jpg',
+                // parallaxBackgroundSize: '2100px 900px',
+
+                // Optional libraries used to extend on reveal.js
+                dependencies: [
+                    { src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+                    { src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+                    { src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+                    { src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+                    { src: 'plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+                    { src: 'plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }
+                ]
+            });
+
+        </script>
+
+    </body>
+</html>
