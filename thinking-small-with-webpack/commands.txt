@@ -1,0 +1,135 @@
+# basics
+  
+  # setup
+  npm init -f
+  npm i -D webpack
+
+  # create basic files
+  touch {index,render}.js
+  subl .
+
+  # do initial build
+  webpack index.js bundle.js
+
+  # add npm build step
+  npm run build
+
+  # run initial build
+  node bundle.js
+
+  # create index.html
+  touch index.html
+  html>head>title{Webpack Demo}^body>#app+script[src=bundle.js]
+
+  # run static server
+  static
+  #view result in the console
+
+# config
+  
+  # create config file
+  touch webpack.config.js
+
+  module.exports = {
+    entry: './index.js',
+    output: {
+      filename: './bundle.js'
+    }
+  }
+
+# watching
+  
+  # run with watch
+  webpack index.js bundle.js --watch
+
+  # make changes - webpack auto rebuilds
+  # refresh browser to see changes
+
+  # install webpack dev server
+  npm i -D webpack-dev-server
+
+  # run webpack dev server
+  webpack-dev-server --inline --hot
+
+  # make changes
+  # browser auto reloads...
+
+# loaders
+
+  # install babel loaders
+  npm i -D babel-core babel-loader babel-preset-es2015 babel-preset-stage-0
+
+  # add a .babelrc file
+  touch .babelrc
+
+  {
+    "presets": [
+      "es2015",
+      "stage-0"
+    ]
+  }
+
+  # add babel-loader
+  module: {
+     loaders: [
+       {
+         test: /\.js/,
+         loader: 'babel',
+         exclude: /node_modules/
+       }
+     ]
+   }
+
+#### make basic app
+
+  # add data.js
+  touch src/data.js
+  touch src/table.jade
+
+  # add jade loader
+  npm i -D jade-loader jade
+  
+  {
+    test: /\.jade/,
+    loader: 'jade',
+    exclude: /node_modules/
+  }
+
+# bundle splitting
+  const table = document.getElementById('table');
+  table.addEventListener('click', () => {
+    require.ensure([], function(require) {
+      const render = require('./render').default;
+      const app = document.getElementById('app');
+      app.innerHTML = render();
+    });
+  })
+
+# hot loading
+
+  module.hot.accept('./render', function() {
+    const render = require('./render').default;
+
+    const app = document.getElementById('app');
+    app.innerHTML = render();  
+  })
+
+
+  # add style loader for hot style loading
+  npm i -D css-loader style-loader
+
+  {
+    test: /\.css/,
+    loaders: ['style', 'css'],
+    exclude: /node_modules/
+  }
+
+# bundle splitting
+  const table = document.getElementById('table');
+  table.addEventListener('click', () => {
+    require.ensure([], function(require) {
+      const render = require('./render').default;
+      const app = document.getElementById('app');
+      app.innerHTML = render();
+    });
+  })
